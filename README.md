@@ -215,24 +215,103 @@ const createError = (code, message) => {
 module.exports = createError;
 ```
 
-## Step 14 update auth-cotroller
-```js
+## Step 14 validate with zod 
 
-```
+/middlewares/validator.js
 
-## Step 15  update auth-route [zod]
 ```js
+const { z } = require("zod");
+
 //Test validator
-const validateWithZod =()=>(req,resp,next)=>{
-    try {
-        console.log("hello middleware");
-        next()
-    } catch (error) {
-        next(error)
-    }
-}
+exports.registerSchema = z.object({
+    email: z.string().email("Email ไม่ถูกต้อง"),
+    firstname: z.string().min(3, "Firstname ต้องมากกว่า 3 "),
+    lastname: z.string().min(3, "Lastname ต้องมากกว่า 3 "),
+    password: z.string().min(6, "Password ต้องมากกว่า 6 "),
+    confirmpassword: z.string().min(6, "confirmPassword ต้องมากกว่า 6 "),
+  })
+  .refine((data) => data.password === data.confirmpassword, {
+    message: "password incorrect",
+    path: ["confirmPassword"],
+  });
+
+exports.loginSchema = z.object({
+    email: z.string().email("Email ไม่ถูกต้อง"),
+    password: z.string().min(6, "Password ต้องมากกว่า 6 ")
+  })
+  
+
+exports.validateWithZod = (schema) => (req, resp, next) => {
+  try {
+    console.log("hello middleware");
+    schema.parse(req.body);
+    next();
+  } catch (error) {
+    const errMsg = error.errors.map((el) => el.message);
+    const errTxt = errMsg.join(",");
+    const mergeError = new Error(errTxt);
+    next(mergeError);
+  }
+};
 ```
-## Step 13 
+## Step 15 update auth-route [auth-rote.js]
+```js
+const express = require("express");
+const router = express.Router();
+const authController = require("../controller/auth-controller");
+const { registerSchema, loginSchema, validateWithZod } = require("../Middlewares/validators");
+
+
+//@ENDPOINT http://localhost:8000/api/register
+router.post("/register", validateWithZod(registerSchema),authController.register);
+router.post("/login",validateWithZod(loginSchema), authController.login);
+
+module.exports = router;
+```
+
+## Step 16 ไปเปลี่ยนที่ .env เพิ่ม model
+```js
+DATABASE_URL="mysql://root:78963@localhost:3306/landmark"
+```
+
+## Step 13 ไปเปลี่ยนที่ scheme.prisma
+```js
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id        Int      @id @default(autoincrement())
+  email     String
+  firstname String
+  lastname  String
+  role      Role     @default(USER)
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+```
+## Step 13 connect to mysql workbenc
+```js
+npx prisma migrate dev --name init
+```
+
+## Step 14 create prisma.js ในFolder configs
+```js
+
+```
+## Step 14
 ```js
 
 ```
