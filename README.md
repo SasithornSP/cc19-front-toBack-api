@@ -254,7 +254,7 @@ exports.validateWithZod = (schema) => (req, resp, next) => {
   }
 };
 ```
-## Step 15 update auth-route [auth-rote.js]
+## Step 15 update auth-route [auth-route.js] +เพิ่ม current-user
 ```js
 const express = require("express");
 const router = express.Router();
@@ -265,7 +265,8 @@ const { registerSchema, loginSchema, validateWithZod } = require("../Middlewares
 //@ENDPOINT http://localhost:8000/api/register
 router.post("/register", validateWithZod(registerSchema),authController.register);
 router.post("/login",validateWithZod(loginSchema), authController.login);
-
+//เพิ่ม current-user
+router.get("/current-user", authController.currentUser)
 module.exports = router;
 ```
 
@@ -317,7 +318,7 @@ const prisma = new PrismaClient()
 module.exports=prisma
 ```
 
-# Step 15 updateCode_Register ใน auth-controller.js
+## Step 15 updateCode_Register ใน auth-controller.js
 ```js
 const prisma = require("../configs/prisma");
 const createError = require("../utils/createError");
@@ -373,7 +374,7 @@ exports.login = (req,resp,next)=>{
 };
 ```
 
-## Step 14 update_Login ใน auth-controller.js
+## Step 16 update_Login ใน auth-controller.js
 ไปเพิ่ม SECRET = cc19 ใน .env
 ```js
 const prisma = require("../configs/prisma");
@@ -423,14 +424,103 @@ exports.login = async(req,resp,next)=>{
         resp.status(500).json({message:"Server Error!!"})
     }
 };
+//เพิ่ม currentUser 
+exports.currentUser = async (req,resp,next)=>{
+    try {
+        resp.json({message:"Hello,current user"})
+    } catch (error) {
+        next(error)
+    }
+}
 ```
 
-## Step 14
+## Step 17 create user-controller ใน Forder controller
+```js
+//1.List all users
+//2.Update Role
+//3.Delete User
+
+exports.listUsers = async(req,response,next)=>{
+    try {
+        response.json({message:"Hello,List users"})
+    } catch (error) {
+        next(error)
+    }
+}
+
+exports.updateRole = async(req,response,next)=>{
+    try {
+        response.json({message:"Hello,Update Role"})
+    } catch (error) {
+        next(error)
+    }
+}
+
+exports.deleteUser = async(req,response,next)=>{
+    try {
+        response.json({message:"Hello,Delete User"})
+    } catch (error) {
+        next(error)
+    }
+}
+```
+
+## Step 18 create user-route  ใน Forder route
+```js
+const express = require("express");
+const router = express.Router();
+const userController =require("../controller/user-controller")
+
+//@ENDPOINT http://localhost:8000/api/users
+router.get("/users",userController.listUsers)
+router.patch("/user/update-role",userController.updateRole)
+router.delete("/user/:id",userController.deleteUser)
+
+
+
+module.exports= router
+```
+## Step 19 update_index.js  update_ userRouter
+```js
+
+const express = require("express")
+const cors =require("cors")
+const morgan =require("morgan")
+const handlerError =require("./Middlewares/error")
+const notFound =require("./Middlewares/not-found")
+//Routing
+const authRouter =require("./routes/auth-route")
+const userRouter =require("./routes/user-route")
+const app =express()
+
+
+//Middlewares
+app.use(cors()) //Allows cross domain
+app.use(morgan("dev")) //show log terminal
+app.use(express.json()) //For read json
+
+//Routing
+app.use("/api",authRouter)
+
+//Routing-user
+app.use("/api",userRouter)
+
+
+//handle error
+app.use(handlerError)
+app.use(notFound)
+
+//start server
+const PORT = 8000
+app.listen(PORT,()=>console.log(`server is running on PORT ${PORT}`));
+
+```
+
+## Step 20
 ```js
 
 ```
-
-## Step 14
+## Step 20
 ```js
 
 ```

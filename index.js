@@ -6,7 +6,7 @@ const handlerError =require("./Middlewares/error")
 const notFound =require("./Middlewares/not-found")
 //Routing
 const authRouter =require("./routes/auth-route")
-
+const userRouter =require("./routes/user-route")
 const app =express()
 
 
@@ -17,6 +17,10 @@ app.use(express.json()) //For read json
 
 //Routing
 app.use("/api",authRouter)
+
+//Routing-user
+app.use("/api",userRouter)
+
 
 //handle error
 app.use(handlerError)

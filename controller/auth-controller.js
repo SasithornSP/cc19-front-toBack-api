@@ -84,3 +84,11 @@ exports.login = async(req,resp,next)=>{
         resp.status(500).json({message:"Server Error!!"})
     }
 };
+
+exports.currentUser = async (req,resp,next)=>{
+    try {
+        resp.json({message:"Hello,current user"})
+    } catch (error) {
+        next(error)
+    }
+}
