@@ -72,17 +72,27 @@ router.post("/register")
 module.exports=router
 ```
 
-## Step 7 create auth-controller
+## Step 7 create auth-controller [register+login]
 ```js
 exports.register=(req,resp,next)=>{
 try {
-    resp.json({message:"hello register"})
+    resp.json({message:"hello Register"})
 } catch (error) {
     console.log(error);
     resp.status(500).json({message:"Server Error!!"})
 }
 };
+
+exports.login = (req,resp,next)=>{
+    try {
+        resp.json({message:"hello Login"})
+    } catch (error) {
+        console.log(error);
+        resp.status(500).json({message:"Server Error!!"})
+    }
+};
 ```
+
 ## update auth-route [Register]
 ```js
 const express = require("express")
@@ -93,4 +103,83 @@ const authController= require("../controller/auth-controller")
 router.post("/register",authController.register)
 
 module.exports=router
+```
+
+
+## Step 7 update index
+```js
+
+const express = require("express")
+const cors =require("cors")
+const morgan =require("morgan")
+
+//Routing
+const authRouter =require("./routes/auth-route")
+
+const app =express()
+
+
+//Middlewares
+app.use(cors()) //Allows cross domain
+app.use(morgan("dev")) //show log terminal
+app.use(express.json()) //For read json
+
+//Routing
+app.use("/api",authRouter)
+
+//start server
+const PORT = 8000
+app.listen(PORT,()=>console.log(`server is running on PORT ${PORT}`));
+```
+
+## Step 8 create handlerError [error.js]  sameToCopyTo
+```js
+const handlerError = (err, req, resp, next) => {
+  console.log(err);
+  resp.status(err.statusCode || 500).json({ message: err.message || "Internal server error" });
+};
+
+module.exports = handlerError;
+```
+
+## Step 10 update next(error)
+```js
+exports.register=(req,resp,next)=>{
+try {
+    resp.json({message:"hello Register"})
+} catch (error) {
+    next(error)
+    resp.status(500).json({message:"Server Error!!"})
+}
+};
+
+exports.login = (req,resp,next)=>{
+    try {
+        resp.json({message:"hello Login"})
+    } catch (error) {
+        next(error)
+        resp.status(500).json({message:"Server Error!!"})
+    }
+};
+```
+## Step 10 update index
+```js
+แล้วก็ นำเข้าไป index
+const handlerError =require("./Middlewares/error")
+```
+```js
+และ เรียกใช้
+//handle error
+app.use(handlerError)
+```
+
+## Step 11
+```js
+
+```
+
+
+## Step 12
+```js
+
 ```

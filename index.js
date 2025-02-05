@@ -2,7 +2,7 @@
 const express = require("express")
 const cors =require("cors")
 const morgan =require("morgan")
-
+const handlerError =require("./Middlewares/error")
 //Routing
 const authRouter =require("./routes/auth-route")
 
@@ -16,6 +16,9 @@ app.use(express.json()) //For read json
 
 //Routing
 app.use("/api",authRouter)
+
+//handle error
+app.use(handlerError)
 
 //start server
 const PORT = 8000
