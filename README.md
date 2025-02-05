@@ -173,13 +173,67 @@ const handlerError =require("./Middlewares/error")
 app.use(handlerError)
 ```
 
-## Step 11
+## Step 11 create not-found [not-found.js] sameToCopyTo
+```js
+const notFound = (req, res) => {
+  res.status(404).json({ message: "Resource not found on this server" });
+};
+
+module.exports = notFound;
+```
+
+
+## Step 12 update index
+```js
+แล้วก็ นำเข้าไป index
+const notFound =require("./Middlewares/not-found")
+และ เรียกใช้
+app.use(notFound)
+```
+# ไปเช็คที่ post man 
+```bash
+สร้างไฟล์ register+login
+เลือก medthod post ใส่ http://localhost:8000/api/register
+เลือก body raw เเล้วพิม
+{
+    "email":"a@gmail.com",
+    "firstname":"aom",
+    "lastname":"Sp",
+    "password":"123456",
+    "confirmpassword":"123456"
+}
+```
+## Step 13 createError [ createError.js ในFolder utils]
+```js
+const createError = (code, message) => {
+  console.log("step1 create Error");
+  const error = new Error(message);
+  error.statusCode = code ;
+  throw error
+};
+
+module.exports = createError;
+```
+
+## Step 14 update auth-cotroller
 ```js
 
 ```
 
-
-## Step 12
+## Step 15  update auth-route [zod]
+```js
+//Test validator
+const validateWithZod =()=>(req,resp,next)=>{
+    try {
+        console.log("hello middleware");
+        next()
+    } catch (error) {
+        next(error)
+    }
+}
+```
+## Step 13 
 ```js
 
 ```
+

@@ -3,6 +3,7 @@ const express = require("express")
 const cors =require("cors")
 const morgan =require("morgan")
 const handlerError =require("./Middlewares/error")
+const notFound =require("./Middlewares/not-found")
 //Routing
 const authRouter =require("./routes/auth-route")
 
@@ -19,6 +20,7 @@ app.use("/api",authRouter)
 
 //handle error
 app.use(handlerError)
+app.use(notFound)
 
 //start server
 const PORT = 8000
