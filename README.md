@@ -516,11 +516,129 @@ app.listen(PORT,()=>console.log(`server is running on PORT ${PORT}`));
 
 ```
 
-## Step 20
+
+//---------------------------------------------------------------------------
+## Step 20 create auth-middleware ใน Forder middleware
+```js
+const createError = require("../utils/createError");
+const jwt =require("jsonwebtoken")
+
+//ใช้verify token
+exports.authCheck =async(req,response,next)=>{
+    try {
+        //รับ header จาก client
+        const authorization =req.headers.authorization
+        //check ถ้าไม่มีToken
+        console.log(authorization);
+        if(!authorization){
+            return createError(400,"Missing Token!!!")
+        }
+        //Bearer token.......ใช้ .slit แบ่งด้วยช่องว่าง
+        const token =authorization.split(" ")[1]
+
+        //verify token
+        jwt.verify(token,process.env.SECRET,(err,decode)=>{
+            if(err){
+                return createError(401,"Unauthorized !!")
+            }
+            // สร้าง property user =decode (ข้อมูล user จาก token)
+            req.user = decode
+            console.log(req);
+            next()
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+```
+
+## Step 21 update auth-route.js
+```js
+เพิ่ม
+//middleware
+const {authCheck}=require("../Middlewares/auth-middleware")
+
+router.get("/current-user", authCheck,authController.currentUser)
+```
+
+## Step 22 update User-controller.js
+```js
+//1.List all users
+//2.Update Role
+//3.Delete User
+
+const prisma = require("../configs/prisma");
+
+exports.listUsers = async(req,response,next)=>{
+    try {
+        const users =await prisma.profile.findMany({
+            // omit คือที่ไม่เอา
+            omit:{
+                password:true,
+            }
+        })
+        console.log(users);
+        response.json({result:users})
+    } catch (error) {
+        next(error)
+    }
+}
+
+exports.updateRole = async(req,response,next)=>{
+    try {
+        const{id,role}=req.body
+        console.log(id,role);
+        // console.log(typeof id);
+        const update = await prisma.profile.update({
+            where:{id:Number(id)},
+            data:{role:role}
+        })
+        response.json({message:"Update Success"})
+    } catch (error) {
+        next(error)
+    }
+}
+
+exports.deleteUser = async(req,response,next)=>{
+    try {
+        const {id}=req.params
+        const deleted =await prisma.profile.delete({
+            where:{id: Number(id),}
+        })
+        console.log(id);
+        response.json({message:"Delete Success"})
+    } catch (error) {
+        next(error)
+    }
+}
+```
+
+## Step 23 update user-route.js
+```js
+const express = require("express");
+const router = express.Router();
+const userController =require("../controller/user-controller")
+
+//import middleware
+const {authCheck}=require("../Middlewares/auth-middleware")
+
+//@ENDPOINT http://localhost:8000/api/users
+router.get("/users",authCheck,userController.listUsers)
+router.patch("/user/update-role",authCheck,userController.updateRole)
+router.delete("/user/:id",authCheck,userController.deleteUser)
+
+
+
+module.exports= router
+```
+
+
+## Step 24
 ```js
 
 ```
-## Step 20
+## Step 23
 ```js
 
 ```
